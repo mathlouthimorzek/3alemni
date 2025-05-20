@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">
+    {% if assignment %}Modifier le devoir{% else %}Créer un devoir{% endif %} pour {{ course.title }}
+</h2>
+<form method="post" class="bg-white p-4 rounded shadow">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        {% if assignment %}Modifier{% else %}Créer{% endif %}
+    </button>
+</form>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-4">Tableau de bord - Administrateur</h1>
+    <p>Bienvenue, administrateur !</p>
+
+    <!-- Form to create EspaceDepot -->
+    <h2 class="text-xl font-semibold mb-2">Créer un Espace de Dépôt</h2>
+    <form method="post" class="mb-6">
+        {% csrf_token %}
+        {{ espace_form.as_p }}
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Créer</button>
+    </form>
+
+    <!-- Display existing EspaceDepot instances -->
+    <h2 class="text-xl font-semibold mb-2">Espaces de Dépôt Existants</h2>
+    {% if espaces %}
+        <ul class="list-disc pl-5">
+            {% for espace in espaces %}
+                <li class="mb-2">{{ espace.nom }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucun espace de dépôt disponible pour le moment.</p>
+    {% endif %}
+
+    <!-- Finance Section -->
+    <h2 class="text-xl font-semibold mb-2 mt-6">Partie Finance</h2>
+    <p class="mb-4"><strong>Montant Total:</strong> {{ total_amount }} DT</p>
+    {% if dashboard_times %}
+        <table class="min-w-full bg-white border border-gray-300">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border px-4 py-2">Étudiant</th>
+                    <th class="border px-4 py-2">Temps Passé (minutes)</th>
+                    <th class="border px-4 py-2">Montant (DT)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dt in dashboard_times %}
+                    <tr>
+                        <td class="border px-4 py-2">{{ dt.student.email }}</td>
+                        <td class="border px-4 py-2">{{ dt.time_spent }}</td>
+                        <td class="border px-4 py-2">{{ dt.amount }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucun étudiant n'a encore passé du temps sur le tableau de bord.</p>
+    {% endif %}
+</div>
+{% endblock %}

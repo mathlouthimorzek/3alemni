@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">{{ course.title }}</h2>
+<div class="bg-white p-4 rounded shadow mb-6">
+    <p>{{ course.description }}</p>
+    <p><strong>Enseignant:</strong> {{ course.teacher.username }}</p>
+    <p><strong>Créé le:</strong> {{ course.created_at }}</p>
+    {% if course.image %}
+        <img src="{{ course.image.url }}" alt="{{ course.title }}" class="mt-2 max-w-full h-auto">
+    {% endif %}
+</div>
+
+{% if user.is_authenticated and user.role == 'student' and not enrolled %}
+    <a href="{% url 'enroll' course.id %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mb-6 inline-block">S'inscrire</a>
+{% endif %}
+
+{% if user.is_authenticated and user.role == 'teacher' and user == course.teacher %}
+    <a href="{% url 'assignment_create' course.id %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mb-6 inline-block">Créer un devoir</a>
+{% endif %}
+
+<h3 class="text-xl font-semibold mb-2">Devoirs</h3>
+{% if assignments %}
+<div class="grid grid-cols-1 gap-4">
+    {% for assignment in assignments %}
+    <div class="bg-white p-4 rounded shadow">
+        <h4 class="text-lg font-semibold">{{ assignment.title }}</h4>
+        <p>{{ assignment.description }}</p>
+        <p><strong>Date limite:</strong> {{ assignment.due_date }}</p>
+        {% if user.is_authenticated and user.role == 'student' and enrolled %}
+            <a href="{% url 'submit_assignment' assignment.id %}" class="text-blue-600 hover:underline">Soumettre</a>
+        {% endif %}
+        {% if user.is_authenticated and user.role == 'teacher' and user == course.teacher %}
+            <a href="{% url 'assignment_edit' assignment.id %}" class="text-blue-600 hover:underline ml-4">Modifier</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>Aucun devoir pour ce cours.</p>
+{% endif %}
+{% endblock %}

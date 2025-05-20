@@ -1,0 +1,123 @@
+{% extends 'base.html' %} {% load custom_filters %} {% block content %}
+<div class="container mx-auto p-4">
+  <h1 class="text-3xl font-bold mb-4">Tableau de bord - Étudiant</h1>
+
+  <!-- Display Courses 
+    {% if courses %}
+        <h2 class="text-xl font-semibold mb-2">Cours disponibles</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for course in courses %}
+                <div class="bg-gray-100 p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-medium">{{ course.title }}</h3>
+                    <p class="text-gray-600">{{ course.teacher.email }}</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                        <div class="bg-blue-600 h-2.5 rounded-full" data-width="0"></div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">0% complete</p>
+                    {% if course.file %}
+                        <a href="{% url 'download_course' course.id %}" class="text-blue-600 hover:underline mt-2 inline-block">Télécharger</a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Aucun cours disponible pour le moment.</p>
+    {% endif %}-->
+  <!-- Display EspaceDepot (Upload Spaces) -->
+  <h2 class="text-xl font-semibold mb-2 mt-6">Espaces de Dépôt</h2>
+  {% if espaces %}
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for espace in espaces %}
+    <div class="bg-gray-100 p-4 rounded-lg shadow">
+      <h3 class="text-lg font-medium">{{ espace.nom }}</h3>
+      <p class="text-gray-600">
+        Matière: {% if espace.matiere %}{{ espace.matiere.title }}{% else %}Non
+        spécifiée{% endif %}
+      </p>
+      <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+        <div
+          class="bg-blue-600 h-2.5 rounded-full"
+          data-width="{{ espace_progress|default:0|get:espace.id|default:0 }}"
+        ></div>
+      </div>
+      <p class="text-sm text-gray-500 mt-1">
+        {{ espace_progress|default:0|get:espace.id|default:0 }}% complete
+      </p>
+      <a
+        href="{% url 'espace_detail' espace.id %}"
+        class="text-blue-600 hover:underline mt-2 inline-block"
+        >Voir les cours</a
+      >
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>Aucun espace de dépôt disponible pour le moment.</p>
+  {% endif %}
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll("[data-width]").forEach((element) => {
+        const width = element.getAttribute("data-width");
+        element.style.width = width + "%";
+      });
+
+      setInterval(function () {
+        fetch("{% url 'update_dashboard_time' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status !== "success") {
+              console.error("Failed to update time:", data.message);
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }, 60000);
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll("[data-width]").forEach((element) => {
+        const width = element.getAttribute("data-width");
+        element.style.width = width + "%";
+      });
+
+      setInterval(function () {
+        fetch("{% url 'update_dashboard_time' %}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status !== "success") {
+              console.error("Failed to update time:", data.message);
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }, 60000);
+
+      let inactivityTimeout;
+
+      function resetInactivityTimer() {
+        clearTimeout(inactivityTimeout);
+        inactivityTimeout = setTimeout(function () {
+          window.location.href = "{% url 'login' %}";
+        }, 1 * 60 * 1000); //
+      }
+
+      document.addEventListener("mousemove", resetInactivityTimer);
+      document.addEventListener("mousedown", resetInactivityTimer);
+      document.addEventListener("scroll", resetInactivityTimer);
+
+      resetInactivityTimer();
+    });
+  </script>
+</div>
+{% endblock %}

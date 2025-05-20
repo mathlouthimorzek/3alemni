@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-4">Tableau de bord - Enseignant</h1>
+
+   
+    <h2 class="text-xl font-semibold mb-2">Ajouter un cours</h2>
+    <form method="post" enctype="multipart/form-data" class="mb-6">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Ajouter Cours</button>
+    </form>
+
+   
+    {% if courses %}
+        <h2 class="text-xl font-semibold mb-2">Mes cours</h2>
+        <ul class="list-disc pl-5 mb-4">
+            {% for course in courses %}
+                <li class="mb-2">
+                    {{ course.title }}
+                    {% if course.file %}
+                        <a href="{% url 'download_course' course.id %}" class="text-blue-600 hover:underline ml-2">Télécharger</a>
+                    {% endif %}
+                    {% if course.espace_depot %}
+                        (Espace de Dépôt: {{ course.espace_depot.nom }})
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Vous n'avez pas encore ajouté de cours.</p>
+    {% endif %}
+{% if submissions_by_student %}
+    <h2 class="text-xl font-semibold mb-2">Travaux soumis</h2>
+    {% for student_email, submissions in submissions_by_student.items %}
+        <div class="mb-4">
+            <h3 class="text-lg font-medium">{{ student_email }}</h3>
+            <table class="min-w-full bg-white border border-gray-300">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="border px-4 py-2">Titre du Cours</th>
+                        <th class="border px-4 py-2">Fichier</th>
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for submission in submissions %}
+                        <tr>
+                            <td class="border px-4 py-2">{{ submission.course.title|default:"Non spécifié" }}</td>
+                            <td class="border px-4 py-2">
+                                {% if submission.file and submission.file.url %}
+                                    <a href="{{ submission.file.url }}" class="text-blue-600 hover:underline">Télécharger</a>
+                                {% else %}
+                                    Aucun fichier
+                                {% endif %}
+                            </td>
+                            
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Aucun travail soumis pour le moment.</p>
+{% endif %}
+
+{% endblock %}
